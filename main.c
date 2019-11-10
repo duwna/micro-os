@@ -27,6 +27,7 @@ void showCalculator();
 void showExit();
 void floatToChar(float num, char *c);
 void printNumber(int num);
+void clearOperation();
 
 /*************************************************************
 cd "C:\Program Files\qemu"
@@ -38,7 +39,7 @@ int start()
 	// showSplashScreen();
 	// showMenu();
 	showCalculator();
-	
+	//drawCalculator();
 	// printKeyCode();
 	while (1)
 		;
@@ -59,8 +60,10 @@ void floatToChar(float num, char *c)
 		c[i] = (int)num % 10 + '0';
 	}
 }
-void printKeyCode() {
-	while (getKey() == 0 || getKey() == 250);
+void printKeyCode()
+{
+	while (getKey() == 0 || getKey() == 250)
+		;
 	char c[10];
 	intToChar(getKey(), c, 10);
 	putString(c, 10, colorWhite, 0, 0, 0);
@@ -107,9 +110,38 @@ void showMenu()
 		keyCode = 0;
 	}
 }
+void drawCalculator()
+{
+	drawRect(340, 300, 390, 168, colorWhite);
+	drawRect(340, 270, 390, 30, colorRed);
+
+	drawSquare(370, 380, 60, colorRed);
+	drawSquare(438, 380, 60, colorRed);
+	drawSquare(506, 380, 60, colorRed);
+	drawSquare(574, 380, 60, colorRed);
+	drawSquare(642, 380, 60, colorRed);
+
+	putChar('+', 7, 0, 380, 385, 0);
+	putChar('-', 7, 0, 448, 385, 0);
+	putChar('x', 6, 0, 516, 385, 0);
+	putChar('/', 6, 0, 584, 390, 0);
+	putChar('-', 6, 0, 660, 390, 0);
+	putChar('<', 6, 0, 650, 390, 0);
+
+	char c[] = "esc";
+	putString(c, 2, 0, 345, 275, 0);
+}
+void printNumber(int num)
+{
+	char str[12];
+	//intToChar(-9999999999, str, 12);
+	intToChar(num, str, 12);
+	drawRect(370, 310, 350, 28, colorWhite);
+	putString(str, 4, 0, 370, 310, 0);
+}
 void showCalculator()
 {
-	clearSreen(0x000000, 10000);
+	drawCalculator();
 
 	int num1 = 0;
 	int num2 = 0;
@@ -147,17 +179,22 @@ void showCalculator()
 				 keyCode == 0x4a || // -
 				 keyCode == 0x4e)   // +
 		{
+			//num2 = 0;
 			operationCode = keyCode;
 			printOperation(operationCode);
 		}
 		else if (keyCode == 0xe) // <-
 		{
+			putChar('-', 6, 0x0000ff, 660, 390, 0);
+			putChar('<', 6, 0x0000ff, 650, 390, 0);
+		
 			if (operationCode == 0)
 				printNumber(num1 /= 10);
 			else
 				printNumber(num2 /= 10);
+			delay(100000);
 		}
-		else if (keyCode == 0x1c) //enter
+		else if (keyCode == 0x1c) // enter
 		{
 			if (operationCode == 0x35)
 				printNumber(num1 /= num2);
@@ -167,14 +204,18 @@ void showCalculator()
 				printNumber(num1 -= num2);
 			else if (operationCode == 0x4e)
 				printNumber(num1 += num2);
-			
+	
+			clearOperation();
 			operationCode = 0;
 			num2 = 0;
 		}
-		else if (keyCode == 0x1)
+		else if (keyCode == 0x1) // esc
 			return;
-		
+
 		delay(10000000);
+
+		putChar('-', 6, 0, 660, 390, 0);
+		putChar('<', 6, 0, 650, 390, 0);
 
 		kbReset(keyCode);
 		keyCode = 0;
@@ -193,24 +234,23 @@ void increaseNum(int n, int *num1, int *num2, int operationCode)
 		printNumber(*num2);
 	}
 }
+void clearOperation(){
+	putChar('+', 7, 0, 380, 385, 0);
+	putChar('-', 7, 0, 448, 385, 0);
+	putChar('x', 6, 0, 516, 385, 0);
+	putChar('/', 6, 0, 584, 390, 0);
+}
 void printOperation(int keyCode)
 {
+	clearOperation();
 	if (keyCode == 0x35)
-		putChar('/', 5, colorWhite, 0, 0, 0);
+		putChar('/', 6, 0x0000ff, 584, 390, 0);
 	else if (keyCode == 0x37)
-		putChar('*', 5, colorWhite, 0, 0, 0);
+		putChar('x', 6, 0x0000ff, 516, 385, 0);
 	else if (keyCode == 0x4a)
-		putChar('-', 5, colorWhite, 0, 0, 0);
+		putChar('-', 7, 0x0000ff, 448, 385, 0);
 	else if (keyCode == 0x4e)
-		putChar('+', 5, colorWhite, 0, 0, 0);
-}
-void printNumber(int num)
-{
-	char str[12];
-	intToChar(num, str, 12);
-	drawRect(130, 290, 500, 50, colorWhite);
-	// clearSreen(colorWhite, 0);
-	putString(str, 3, 0, 200, 300, 0);
+		putChar('+', 7, 0x0000ff, 380, 385, 0);
 }
 void showExit()
 {
@@ -394,16 +434,25 @@ void clearPercent()
 }
 void intToChar(int num, char *c, int lenth)
 {
-	int numCopy = num;
-	if (num < 0)
-		num *= -1;
-	for (int i = lenth - 2; i >= 0; i--)
+	if (num == 0)
 	{
-		c[i] = num % 10 + '0';
-		if (num == 0)
+		c[lenth - 2] = '0';
+		for (int i = lenth - 3; i >= 0; i--)
 			c[i] = ' ';
-		num /= 10;
 	}
-	if(numCopy < 0)
-		c[0] = '-';
+	else
+	{
+		int numCopy = num;
+		if (num < 0)
+			num *= -1;
+		for (int i = lenth - 2; i >= 0; i--)
+		{
+			c[i] = num % 10 + '0';
+			if (num == 0)
+				c[i] = ' ';
+			num /= 10;
+		}
+		if (numCopy < 0)
+			c[0] = '-';
+	}
 }
