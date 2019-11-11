@@ -17,7 +17,7 @@ void delay(int d);
 void drawSquare(int positionX, int positionY, int size, int color);
 void setPixel(int x, int y, int color);
 void showSplashScreen();
-void showGradientScreen();
+void showSplashGradientScreen();
 void clearPercent();
 void intToChar(int num, char *c, int lenth);
 void showMenu();
@@ -36,13 +36,8 @@ java -jar builderFont.jar C:\Users\leogr\Desktop\система\MYOS
 
 int start()
 {
-	// showSplashScreen();
-	// showMenu();
-	showCalculator();
-	//drawCalculator();
-	// printKeyCode();
-	while (1)
-		;
+	showSplashScreen();
+	showMenu();
 }
 
 void floatToChar(float num, char *c)
@@ -70,7 +65,7 @@ void printKeyCode()
 }
 void showMenu()
 {
-	clearSreen(0x000055, 0);
+	clearCalcAndMenu();
 	char menuStr[] = "Menu";
 	char calcStr[] = "Calculator";
 	char exitStr[] = "Exit";
@@ -112,6 +107,7 @@ void showMenu()
 }
 void drawCalculator()
 {
+	clearCalcAndMenu();
 	drawRect(340, 300, 390, 168, colorWhite);
 	drawRect(340, 270, 390, 30, colorRed);
 
@@ -187,7 +183,7 @@ void showCalculator()
 		{
 			putChar('-', 6, 0x0000ff, 660, 390, 0);
 			putChar('<', 6, 0x0000ff, 650, 390, 0);
-		
+
 			if (operationCode == 0)
 				printNumber(num1 /= 10);
 			else
@@ -204,13 +200,13 @@ void showCalculator()
 				printNumber(num1 -= num2);
 			else if (operationCode == 0x4e)
 				printNumber(num1 += num2);
-	
+
 			clearOperation();
 			operationCode = 0;
 			num2 = 0;
 		}
 		else if (keyCode == 0x1) // esc
-			return;
+			showMenu();
 
 		delay(10000000);
 
@@ -234,7 +230,8 @@ void increaseNum(int n, int *num1, int *num2, int operationCode)
 		printNumber(*num2);
 	}
 }
-void clearOperation(){
+void clearOperation()
+{
 	putChar('+', 7, 0, 380, 385, 0);
 	putChar('-', 7, 0, 448, 385, 0);
 	putChar('x', 6, 0, 516, 385, 0);
@@ -254,7 +251,11 @@ void printOperation(int keyCode)
 }
 void showExit()
 {
-	clearSreen(colorWhite, 10000);
+	clearCalcAndMenu();
+	char c[] = "Goodbye!";
+	putString(c, 5, colorWhite, 350, 350, 50000);
+	delay(5000000);
+	clearSreen(0, 0);
 }
 int getKey()
 {
@@ -366,7 +367,7 @@ void setPixel(int x, int y, int color)
 }
 void showSplashScreen()
 {
-	showGradientScreen();
+	showSplashGradientScreen();
 	char loading[] = "Loading ...";
 	char percent[3];
 	char percentLetter[] = "%";
@@ -374,7 +375,8 @@ void showSplashScreen()
 
 	putString(percentLetter, 5, colorGreenLight, 510, 450, 0);
 
-	for (int num1 = 3; num1 < 100; num1 += 4)
+	for (int num1 = 3; num1 < 7; num1 += 4)
+	//for (int num1 = 3; num1 < 100; num1 += 4)
 	{
 		clearPercent();
 		intToChar(num1, percent, 3);
@@ -384,10 +386,9 @@ void showSplashScreen()
 		else
 			putString(loading, 5, colorRed, 300, 350, 100000);
 	}
-
-	clearSreen(colorPurpleDark, 100000);
+	showMenuGradientScreen();
 }
-void showGradientScreen()
+void showSplashGradientScreen()
 {
 	int color = 0x000022;
 	for (int y = 0; y < 768; y++)
@@ -454,5 +455,36 @@ void intToChar(int num, char *c, int lenth)
 		}
 		if (numCopy < 0)
 			c[0] = '-';
+	}
+}
+void showMenuGradientScreen()
+{
+	int color = 0x000011;
+	for (int x = 0; x < 1024; x++)
+	{
+		for (int y = 0; y < 768; y++)
+			setPixel(x, y, color);
+
+		if (x % 5 == 0)
+			if (x < 512)
+				color += 0x000100;
+			else
+				color -= 0x000100;
+	}
+}
+void clearCalcAndMenu()
+{
+	int color = 0x000011;
+	for (int x = 0; x < 1024; x++)
+	{
+		for (int y = 0; y < 768; y++)
+			if (x > 330 && x < 730 && y > 245 && y < 480)
+				setPixel(x, y, color);
+
+		if (x % 5 == 0)
+			if (x < 512)
+				color += 0x000100;
+			else
+				color -= 0x000100;
 	}
 }
