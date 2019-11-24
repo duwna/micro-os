@@ -6,8 +6,8 @@ import java.io.*
 lateinit var path: String
 
 fun main(args: Array<String>) {
-	path = args[0]
-	File("$path\\a.exe").delete()
+    path = args[0]
+    File("$path\\a.exe").delete()
     runCommand("gcc -masm=intel -nostdlib $path\\main.c -o $path\\a.exe")
     println("gcc")
     runCommand("objcopy $path\\a.exe -O binary")
